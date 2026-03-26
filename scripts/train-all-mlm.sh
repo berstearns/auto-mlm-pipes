@@ -85,6 +85,10 @@ for i in "${!CONFIGS[@]}"; do
     fi
 
     cmd="$PYTHON -m pipelines.train_encoder --config $cfg"
+    # Allow overriding train_file for remote deployments
+    if [[ -n "${TRAIN_FILE_OVERRIDE:-}" ]]; then
+        cmd="$cmd --train_file $TRAIN_FILE_OVERRIDE"
+    fi
 
     if $DRY_RUN; then
         echo "  [dry-run] $cmd"

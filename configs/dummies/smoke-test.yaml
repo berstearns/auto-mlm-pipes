@@ -1,0 +1,25 @@
+# Smoke test — minimal GPU validation (bert-base MLM, 1 epoch, dummy data)
+# Fits in any GPU. Output: outputs/smoke-test-mlm/
+model: bert-base-uncased
+objective: mlm
+mask_probability: 0.15
+max_length: 128
+
+seed: 42
+
+train_file: data/dummy.txt
+val_split: 0.2
+
+per_device_train_batch_size: 4
+per_device_eval_batch_size: 4
+gradient_accumulation_steps: 1
+num_train_epochs: 1
+learning_rate: 5e-05
+bf16: true
+
+eval_strategy: epoch
+save_strategy: "no"
+logging_steps: 1
+
+output_dir: outputs/smoke-test-mlm
+report_to: none
