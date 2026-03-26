@@ -1,0 +1,27 @@
+# RetroMAE bert-large on EFCAMDAT (340M params)
+# Asymmetric masking: 15% encoder, 50% decoder
+model: bert-large-uncased
+encoder_mask_ratio: 0.15
+decoder_mask_ratio: 0.50
+decoder_layers: 1
+max_length: 512
+
+seed: 42
+
+train_file: /home/b/p/my-data/i/phd-experimental-data/cefr-classification/data/splits/norm-EFCAMDAT-ALL-CONCAT.csv
+text_column: text
+val_split: 0.05
+
+per_device_train_batch_size: 16
+per_device_eval_batch_size: 16
+gradient_accumulation_steps: 2
+num_train_epochs: 10
+learning_rate: 3e-05
+weight_decay: 0.01
+warmup_ratio: 0.06
+lr_scheduler_type: cosine
+bf16: true
+
+logging_steps: 50
+wandb_project: efcamdat-retromae
+wandb_run_name: bert-large-retromae

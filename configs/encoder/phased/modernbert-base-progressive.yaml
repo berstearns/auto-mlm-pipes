@@ -1,0 +1,41 @@
+# ModernBERT progressive sequence length training (short → long)
+# Usage: python -m pipelines.train_encoder --config configs/encoder/phased/modernbert-base-progressive.yaml
+
+model: answerdotai/ModernBERT-base
+objective: mlm
+flash_attention: true
+seed: 42
+
+train_file: data/corpus.txt
+val_split: 0.1
+
+# Base training params (overridden per phase)
+bf16: true
+weight_decay: 0.01
+lr_scheduler_type: cosine
+
+wandb_project: auto-mlm
+wandb_run_name: modernbert-phased
+
+phases:
+  - name: phase1-short
+    max_length: 512
+    mask_probability: 0.30
+    num_train_epochs: 10
+    learning_rate: 1e-4
+    per_device_train_batch_size: 32
+    warmup_ratio: 0.05
+    eval_strategy: epoch
+    save_strategy: epoch
+
+  - name: phase2-long
+    max_length: 2048
+    mask_probability: 0.30
+    num_train_epochs: 3
+    learning_rate: 3e-5
+    per_device_train_batch_size: 8
+    gradient_accumulation_steps: 4
+    gradient_checkpointing: true
+    warmup_ratio: 0.02
+    eval_strategy: epoch
+    save_strategy: epoch

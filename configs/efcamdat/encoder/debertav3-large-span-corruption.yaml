@@ -1,0 +1,31 @@
+# debertav3-large SPAN_CORRUPTION on EFCAMDAT (304M params)
+model: microsoft/deberta-v3-large
+objective: span_corruption
+mask_probability: 0.15
+max_length: 512
+
+seed: 42
+
+train_file: /home/b/p/my-data/i/phd-experimental-data/cefr-classification/data/splits/norm-EFCAMDAT-ALL-CONCAT.csv
+text_column: text
+val_split: 0.05
+
+per_device_train_batch_size: 8
+per_device_eval_batch_size: 8
+gradient_accumulation_steps: 4
+num_train_epochs: 10
+learning_rate: 3e-05
+weight_decay: 0.01
+warmup_ratio: 0.06
+lr_scheduler_type: cosine
+bf16: true
+gradient_checkpointing: true
+
+eval_strategy: epoch
+save_strategy: epoch
+save_total_limit: 3
+logging_steps: 50
+
+wandb_project: efcamdat-encoder
+wandb_run_name: debertav3-large-span_corruption
+mean_span_length: 3.0

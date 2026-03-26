@@ -1,0 +1,31 @@
+# electra-base RTD on EFCAMDAT (110M params)
+model: google/electra-base-discriminator
+objective: rtd
+mask_probability: 0.15
+max_length: 512
+generator_model: google/electra-base-generator
+discriminator_weight: 50.0
+
+seed: 42
+
+train_file: /home/b/p/my-data/i/phd-experimental-data/cefr-classification/data/splits/norm-EFCAMDAT-ALL-CONCAT.csv
+text_column: text
+val_split: 0.05
+
+per_device_train_batch_size: 32
+per_device_eval_batch_size: 32
+gradient_accumulation_steps: 1
+num_train_epochs: 10
+learning_rate: 5e-05
+weight_decay: 0.01
+warmup_ratio: 0.06
+lr_scheduler_type: cosine
+bf16: true
+
+eval_strategy: epoch
+save_strategy: epoch
+save_total_limit: 3
+logging_steps: 50
+
+wandb_project: efcamdat-encoder
+wandb_run_name: electra-base-rtd

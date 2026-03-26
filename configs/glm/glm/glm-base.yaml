@@ -1,0 +1,27 @@
+# GLM blank infilling with THUDM GLM backbone
+# Usage: python -m pipelines.train_glm --config configs/glm/glm/glm-base.yaml
+
+model: THUDM/glm-large-chinese
+trust_remote_code: true
+mask_ratio: 0.15
+avg_span_length: 3
+shuffle_spans: true
+max_length: 512
+seed: 42
+
+train_file: data/corpus.txt
+val_split: 0.1
+
+per_device_train_batch_size: 8
+per_device_eval_batch_size: 8
+gradient_accumulation_steps: 4
+num_train_epochs: 5
+learning_rate: 3e-5
+weight_decay: 0.01
+warmup_ratio: 0.06
+lr_scheduler_type: cosine
+bf16: true
+
+logging_steps: 10
+wandb_project: auto-mlm
+wandb_run_name: glm-base

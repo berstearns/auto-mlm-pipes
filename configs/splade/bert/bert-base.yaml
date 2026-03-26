@@ -1,0 +1,27 @@
+# SPLADE sparse expansion with BERT-base backbone
+# Usage: python -m pipelines.train_splade --config configs/splade/bert/bert-base.yaml
+
+model: bert-base-uncased
+lambda_q: 0.0006
+lambda_d: 0.0008
+max_length: 256
+temperature: 0.05
+num_negatives: 7
+seed: 42
+
+train_file: data/pairs.jsonl
+val_split: 0.1
+
+per_device_train_batch_size: 32
+per_device_eval_batch_size: 32
+gradient_accumulation_steps: 1
+num_train_epochs: 5
+learning_rate: 2e-5
+weight_decay: 0.01
+warmup_ratio: 0.1
+lr_scheduler_type: cosine
+bf16: true
+
+logging_steps: 10
+wandb_project: auto-mlm
+wandb_run_name: splade-bert-base

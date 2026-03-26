@@ -1,0 +1,29 @@
+# ColBERT with ModernBERT backbone (GTE-ModernColBERT style)
+# Usage: python -m pipelines.train_colbert --config configs/colbert/modernbert/modernbert-base.yaml
+
+model: answerdotai/ModernBERT-base
+dim: 128
+doc_maxlen: 256
+query_maxlen: 32
+flash_attention: true
+temperature: 0.05
+use_ib_negatives: true
+num_negatives: 7
+seed: 42
+
+train_file: data/pairs.jsonl
+val_split: 0.1
+
+per_device_train_batch_size: 32
+per_device_eval_batch_size: 32
+gradient_accumulation_steps: 1
+num_train_epochs: 3
+learning_rate: 5e-6
+weight_decay: 0.01
+warmup_ratio: 0.1
+lr_scheduler_type: cosine
+bf16: true
+
+logging_steps: 10
+wandb_project: auto-mlm
+wandb_run_name: colbert-modernbert-base

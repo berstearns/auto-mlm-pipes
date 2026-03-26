@@ -1,0 +1,26 @@
+# GLM blank infilling with GPT-2 backbone
+# Usage: python -m pipelines.train_glm --config configs/glm/gpt2/gpt2-small.yaml
+
+model: openai-community/gpt2
+mask_ratio: 0.15
+avg_span_length: 3
+shuffle_spans: true
+max_length: 512
+seed: 42
+
+train_file: data/corpus.txt
+val_split: 0.1
+
+per_device_train_batch_size: 8
+per_device_eval_batch_size: 8
+gradient_accumulation_steps: 4
+num_train_epochs: 5
+learning_rate: 5e-5
+weight_decay: 0.01
+warmup_ratio: 0.06
+lr_scheduler_type: cosine
+bf16: true
+
+logging_steps: 10
+wandb_project: auto-mlm
+wandb_run_name: glm-gpt2-small

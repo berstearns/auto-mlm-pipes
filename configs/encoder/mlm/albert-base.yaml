@@ -1,0 +1,29 @@
+# ALBERT-base-v2 MLM (parameter-efficient, cross-layer sharing)
+# Usage: python -m pipelines.train_encoder --config configs/encoder/mlm/albert-base.yaml
+
+model: albert-base-v2
+objective: mlm
+mask_probability: 0.15
+max_length: 512
+seed: 42
+
+train_file: data/corpus.txt
+val_split: 0.1
+
+per_device_train_batch_size: 64
+per_device_eval_batch_size: 64
+gradient_accumulation_steps: 1
+num_train_epochs: 5
+learning_rate: 5e-5
+weight_decay: 0.01
+warmup_ratio: 0.06
+lr_scheduler_type: cosine
+bf16: true
+
+eval_strategy: epoch
+save_strategy: epoch
+save_total_limit: 3
+logging_steps: 10
+
+wandb_project: auto-mlm
+wandb_run_name: albert-base-mlm

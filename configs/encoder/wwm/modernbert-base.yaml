@@ -1,0 +1,30 @@
+# ModernBERT Whole Word Masking (30% masking, FlashAttention)
+# Usage: python -m pipelines.train_encoder --config configs/encoder/wwm/modernbert-base.yaml
+
+model: answerdotai/ModernBERT-base
+objective: wwm
+mask_probability: 0.30
+max_length: 1024
+flash_attention: true
+seed: 42
+
+train_file: data/corpus.txt
+val_split: 0.1
+
+per_device_train_batch_size: 16
+per_device_eval_batch_size: 16
+gradient_accumulation_steps: 2
+num_train_epochs: 5
+learning_rate: 1e-4
+weight_decay: 0.01
+warmup_ratio: 0.06
+lr_scheduler_type: cosine
+bf16: true
+
+eval_strategy: epoch
+save_strategy: epoch
+save_total_limit: 3
+logging_steps: 10
+
+wandb_project: auto-mlm
+wandb_run_name: modernbert-base-wwm

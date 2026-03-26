@@ -1,0 +1,23 @@
+# GLM dummy CPU smoke test (blank infilling)
+# Usage: python -m pipelines.train_glm --config configs/glm/dummy-cpu.yaml
+
+model: openai-community/gpt2
+mask_ratio: 0.15
+avg_span_length: 3
+shuffle_spans: true
+max_length: 32
+seed: 42
+
+train_file: data/dummy.txt
+val_split: 0.2
+
+per_device_train_batch_size: 2
+per_device_eval_batch_size: 2
+gradient_accumulation_steps: 1
+num_train_epochs: 1
+learning_rate: 5e-5
+fp16: false
+bf16: false
+
+logging_steps: 1
+report_to: none

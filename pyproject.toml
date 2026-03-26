@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "auto-mlm-pipes"
+version = "0.1.0"
+description = "Config-driven encoder pre-training pipelines: MLM, RTD, ColBERT, GLM, SPLADE, RetroMAE"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.2.0",
+    "transformers>=4.47.0",
+    "datasets>=2.14.0",
+    "accelerate>=0.30.0",
+    "pyyaml>=6.0",
+    "wandb>=0.16.0",
+    "tqdm>=4.65.0",
+    "numpy>=1.24.0",
+]
+
+[project.optional-dependencies]
+flash-attn = [
+    "flash-attn>=2.5.0",
+]
+tensorboard = [
+    "tensorboard>=2.16.0",
+]
+aim = [
+    "aim>=3.19.0",
+]
+dev = [
+    "ruff>=0.4.0",
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+train-encoder = "pipelines.train_encoder:main"
+train-colbert = "pipelines.train_colbert:main"
+train-glm = "pipelines.train_glm:main"
+train-splade = "pipelines.train_splade:main"
+train-retromae = "pipelines.train_retromae:main"
+
+[tool.setuptools.packages.find]
+include = ["pipelines*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
