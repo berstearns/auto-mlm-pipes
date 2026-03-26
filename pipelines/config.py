@@ -82,7 +82,7 @@ class CheckpointConfig:
     eval_steps: int = 500
     save_strategy: str = "steps"
     save_steps: int = 500
-    save_total_limit: int = 5
+    save_total_limit: Optional[int] = None
     top_k_checkpoints: int = 5
     resume_from_checkpoint: Optional[str] = None
 

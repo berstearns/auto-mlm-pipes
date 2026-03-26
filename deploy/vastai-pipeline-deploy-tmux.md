@@ -53,26 +53,88 @@ ssh $SSH_URL "cd /workspace/auto-mlm-pipes && \
   eval \"\$(pyenv init -)\" && \
   git pull --ff-only"
 
-# 3. Launch in tmux
+# 3. Launch training in tmux
 ssh $SSH_URL "tmux new-window -t ssh_tmux -n mlm-train \
   'export PYENV_ROOT=/root/.pyenv && \
-   export PATH=\$PYENV_ROOT/bin:\$PYEX_ROOT/shims:\$PATH && \
+   export PATH=\$PYENV_ROOT/bin:\$PYENV_ROOT/shims:\$PATH && \
    eval \"\$(pyenv init -)\" && \
-   bash /workspace/auto-mlm-pipes/deploy/run-all-mlm-efcamdat.sh --sync-results; bash'"
+   bash /workspace/auto-mlm-pipes/deploy/run-all-mlm-efcamdat.sh; bash'"
 ```
 
 With resume (skip models that already have `output_dir/final/`):
 ```bash
-bash /workspace/auto-mlm-pipes/deploy/run-all-mlm-efcamdat.sh --resume --sync-results
+bash /workspace/auto-mlm-pipes/deploy/run-all-mlm-efcamdat.sh --resume
+```
+
+## Step 4: Start GDrive sync (separate tmux window)
+
+Syncs completed models to GDrive every 15 minutes. Runs independently from training.
+
+```bash
+ssh $SSH_URL "tmux new-window -t ssh_tmux -n mlm-sync \
+  'bash /workspace/auto-mlm-pipes/deploy/sync-results-gdrive.sh; bash'"
+```
+
+### How the sync works
+
+- Runs in a **loop every 15 minutes** in its own tmux window (`mlm-sync`)
+- For each `outputs/encoder-*` directory:
+  1. Checks if training is **complete**: `final/` dir exists + 10 `checkpoint-*` dirs (all epochs)
+  2. Uploads to `i:/_p/artificial-learners/models/encoders/mlm/{family}/{size}/`
+  3. **Verifies** remote file count matches local file count
+  4. If verified: **removes local copy** to free disk space
+  5. If mismatch: **keeps local copy** for manual handling
+- **Ctrl+C** to stop, re-run the tmux command to restart
+
+### GDrive target structure
+
+```
+i:/_p/artificial-learners/models/encoders/mlm/
+  albert/base-v2/
+  albert/large-v2/
+  albert/xlarge-v2/
+  albert/xxlarge-v2/
+  bert/base/
+  bert/large/
+  debertav3/xsmall/
+  debertav3/small/
+  debertav3/base/
+  debertav3/large/
+  modernbert/base/
+  modernbert/large/
+  nomic-bert/base/
+  roberta/base/
+  roberta/large/
+```
+
+Each model dir contains:
+- `checkpoint-*/` (all 10 epoch checkpoints)
+- `final/` (best model)
+- `resolved_config.yaml`, `train_metrics.json`, `eval_results.json`
+
+### Sync monitoring
+
+```bash
+ssh $SSH_URL "tmux capture-pane -t ssh_tmux:mlm-sync -p -S -30"
 ```
 
 ## Monitoring
 
 ```bash
+# List all tmux windows
 ssh $SSH_URL "tmux list-windows -t ssh_tmux"
+
+# Training progress
 ssh $SSH_URL "tmux capture-pane -t ssh_tmux:mlm-train -p -S -30"
 ssh $SSH_URL "tail -50 /workspace/mlm-training-all.log"
 ssh $SSH_URL -t "tmux attach -t ssh_tmux:mlm-train"
+
+# Sync progress
+ssh $SSH_URL "tmux capture-pane -t ssh_tmux:mlm-sync -p -S -30"
+
+# Disk space (all epochs saved = ~5-10GB per model)
+ssh $SSH_URL "df -h /workspace"
+ssh $SSH_URL "du -sh /workspace/auto-mlm-pipes/outputs/*"
 ```
 
 ## Models trained (15 MLM configs)
@@ -86,6 +148,12 @@ ssh $SSH_URL -t "tmux attach -t ssh_tmux:mlm-train"
 | NomicBERT | nomic-embed-text-v1 |
 | RoBERTa | base, large |
 
+## Training config notes
+
+- **All epochs saved**: `save_total_limit` is unset (keeps all 10 epoch checkpoints)
+- **Batch sizes**: tuned for 32GB VRAM (RTX 5090)
+- **Sync**: handled separately via `sync-results-gdrive.sh` (not part of training script)
+
 ## Files
 
 | File | Purpose |
@@ -93,12 +161,15 @@ ssh $SSH_URL -t "tmux attach -t ssh_tmux:mlm-train"
 | `deploy/project-setup-remote.sh` | Pyenv + deps setup (run once) |
 | `deploy/run-smoke-test.sh` | Quick GPU validation |
 | `deploy/run-all-mlm-efcamdat.sh` | Full 15-model MLM training |
+| `deploy/sync-results-gdrive.sh` | Periodic GDrive sync (every 15min) |
 | `configs/dummies/smoke-test.yaml` | Smoke config (1 epoch, dummy data) |
 | `scripts/train-all-mlm.sh` | Sequential training orchestrator |
 
 ## Disk space
 
-Check before launching (~1GB per model output, ~15GB total):
+With all epochs saved, each model uses ~5-10GB. The sync script frees space by
+removing local copies after verified upload. Monitor disk usage:
+
 ```bash
 ssh $SSH_URL "df -h /workspace"
 ```

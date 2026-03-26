@@ -27,19 +27,16 @@ DATA_DIR="/workspace/data"
 PYENV_ROOT="/root/.pyenv"
 
 GDRIVE_DATA="i:phd-experimental-data/cefr-classification/data/splits"
-GDRIVE_RESULTS="i:/_p/artificial-learners/mlm-training/outputs"
 
 SKIP_FETCH=""
-SYNC_RESULTS=""
 RESUME=""
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --skip-fetch)    SKIP_FETCH="1"; shift ;;
-        --sync-results)  SYNC_RESULTS="1"; shift ;;
         --resume)        RESUME="--resume"; shift ;;
         -h|--help)
-            echo "Usage: $0 [--skip-fetch] [--sync-results] [--resume]"
+            echo "Usage: $0 [--skip-fetch] [--resume]"
             exit 0
             ;;
         *) shift ;;
@@ -110,18 +107,9 @@ export TRAIN_FILE_OVERRIDE="$DATA_FILE"
 bash scripts/train-all-mlm.sh $RESUME \
     2>&1 | tee /workspace/mlm-training-all.log
 
-#===============================================================================
-# Phase 3: Sync results
-#===============================================================================
-if [[ -n "$SYNC_RESULTS" ]]; then
-    echo ""
-    echo -e "${CYAN}[3/3] Syncing results to GDrive...${NC}"
-    if [[ -d "$REPO_DIR/outputs" ]]; then
-        rclone copy "$REPO_DIR/outputs/" "$GDRIVE_RESULTS/" 2>&1
-        echo -e "  ${GREEN}✓${NC} Synced to $GDRIVE_RESULTS"
-    fi
-fi
-
 echo ""
 echo -e "${GREEN}=== All done. $(date) ===${NC}"
 echo "  Log: /workspace/mlm-training-all.log"
+echo ""
+echo -e "${YELLOW}NOTE:${NC} Results sync is handled by a separate tmux window (mlm-sync)."
+echo "  See: deploy/sync-results-gdrive.sh"
