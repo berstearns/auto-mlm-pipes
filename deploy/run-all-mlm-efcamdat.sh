@@ -26,7 +26,7 @@ REPO_DIR="/workspace/auto-mlm-pipes"
 DATA_DIR="/workspace/data"
 PYENV_ROOT="/root/.pyenv"
 
-GDRIVE_DATA="i:/_p/artificial-learners/data/splits"
+GDRIVE_DATA="i:phd-experimental-data/cefr-classification/data/splits"
 GDRIVE_RESULTS="i:/_p/artificial-learners/mlm-training/outputs"
 
 SKIP_FETCH=""

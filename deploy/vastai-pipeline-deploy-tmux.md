@@ -5,7 +5,7 @@ Deploy and run MLM encoder pre-training on EFCAMDAT on a vastai GPU server.
 ## Prerequisites
 
 - vastai instance running with rclone configured (`i:` remote)
-- EFCAMDAT data at `i:/_p/artificial-learners/data/splits/norm-EFCAMDAT-ALL-CONCAT.csv`
+- EFCAMDAT data at `i:phd-experimental-data/cefr-classification/data/splits/norm-EFCAMDAT-ALL-CONCAT.csv`
 
 ## Step 0: Get SSH URL
 
