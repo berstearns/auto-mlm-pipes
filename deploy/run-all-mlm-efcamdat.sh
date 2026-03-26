@@ -1,6 +1,6 @@
 #!/bin/bash
 #===============================================================================
-# run-all-mlm-efcamdat.sh — Train all 15 MLM encoders on EFCAMDAT
+# run-all-mlm-efcamdat.sh — Train all 19 MLM encoders on EFCAMDAT
 #===============================================================================
 # Runs ON the remote server (via tmux). Fetches EFCAMDAT data from GDrive,
 # then trains all MLM configs sequentially.
@@ -95,7 +95,7 @@ fi
 #===============================================================================
 # Phase 2: Run all MLM configs
 #===============================================================================
-echo -e "${CYAN}[2/3] Running all MLM configs (15 models)...${NC}"
+echo -e "${CYAN}[2/3] Running all MLM configs (19 models)...${NC}"
 echo "  Start: $(date)"
 echo ""
 

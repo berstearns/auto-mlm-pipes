@@ -38,11 +38,15 @@ CONFIGS=(
     "$CONFIG_DIR/debertav3-small-mlm.yaml"
     "$CONFIG_DIR/debertav3-base-mlm.yaml"
     "$CONFIG_DIR/debertav3-large-mlm.yaml"
+    "$CONFIG_DIR/infoxlm-large-mlm.yaml"
     "$CONFIG_DIR/modernbert-base-mlm.yaml"
     "$CONFIG_DIR/modernbert-large-mlm.yaml"
+    "$CONFIG_DIR/multilingual-e5-large-mlm.yaml"
     "$CONFIG_DIR/nomic-bert-mlm.yaml"
+    "$CONFIG_DIR/rembert-mlm.yaml"
     "$CONFIG_DIR/roberta-base-mlm.yaml"
     "$CONFIG_DIR/roberta-large-mlm.yaml"
+    "$CONFIG_DIR/xlmr-large-mlm.yaml"
 )
 
 TOTAL=${#CONFIGS[@]}
