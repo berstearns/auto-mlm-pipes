@@ -17,8 +17,9 @@ num_train_epochs: 1
 learning_rate: 5e-05
 bf16: true
 
-eval_strategy: epoch
+eval_strategy: "no"
 save_strategy: "no"
+load_best_model_at_end: false
 logging_steps: 1
 
 output_dir: outputs/smoke-test-mlm
