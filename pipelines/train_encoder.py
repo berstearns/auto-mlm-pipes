@@ -534,7 +534,7 @@ def run_single(cfg: EncoderConfig):
         train_dataset=processed["train"],
         eval_dataset=processed["validation"] if has_validation else None,
         data_collator=collator,
-        tokenizer=tokenizer,
+        processing_class=tokenizer,
     )
 
     # --- Train ---
