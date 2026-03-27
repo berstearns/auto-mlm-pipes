@@ -10,8 +10,9 @@ train_file: /home/b/p/my-data/i/phd-experimental-data/cefr-classification/data/s
 text_column: text
 val_split: 0.05
 
-per_device_train_batch_size: 24
-per_device_eval_batch_size: 24
+per_device_train_batch_size: 4
+per_device_eval_batch_size: 4
+gradient_checkpointing: true
 gradient_accumulation_steps: 1
 num_train_epochs: 10
 learning_rate: 3e-05
