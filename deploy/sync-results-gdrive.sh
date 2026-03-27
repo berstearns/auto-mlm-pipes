@@ -44,6 +44,10 @@ declare -A MODEL_MAP=(
     ["nomic-bert-2048"]="nomic-bert/base"
     ["roberta-base"]="roberta/base"
     ["roberta-large"]="roberta/large"
+    ["multilingual-e5-large"]="multilingual-e5/large"
+    ["xlm-roberta-large"]="xlmr/large"
+    ["rembert"]="rembert/base"
+    ["infoxlm-large"]="infoxlm/large"
 )
 
 get_gdrive_path() {

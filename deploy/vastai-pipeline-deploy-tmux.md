@@ -25,11 +25,12 @@ SSH_URL=$(./vastai-ssh get-url)
 Quick validation: bert-base MLM, 1 epoch, 20 dummy sentences. Minimal GPU usage.
 
 ```bash
-ssh $SSH_URL "tmux new-window -t ssh_tmux -n mlm-smoke \
+ssh $SSH_URL "tmux new-window -t ssh_tmux -n mlm-smoke 2>/dev/null || true"
+ssh $SSH_URL "tmux send-keys -t ssh_tmux:mlm-smoke \
   'export PYENV_ROOT=/root/.pyenv && \
    export PATH=\$PYENV_ROOT/bin:\$PYENV_ROOT/shims:\$PATH && \
    eval \"\$(pyenv init -)\" && \
-   bash /workspace/auto-mlm-pipes/deploy/run-smoke-test.sh; bash'"
+   bash /workspace/auto-mlm-pipes/deploy/run-smoke-test.sh' Enter"
 ```
 
 Check:
@@ -37,7 +38,7 @@ Check:
 ssh $SSH_URL "tmux capture-pane -t ssh_tmux:mlm-smoke -p -S -20"
 ```
 
-## Step 3: Run all 15 MLM models on EFCAMDAT
+## Step 3: Run all 19 MLM models on EFCAMDAT
 
 **Always pull before launch** (bash reads script into memory before git pull):
 
@@ -53,12 +54,13 @@ ssh $SSH_URL "cd /workspace/auto-mlm-pipes && \
   eval \"\$(pyenv init -)\" && \
   git pull --ff-only"
 
-# 3. Launch training in tmux
-ssh $SSH_URL "tmux new-window -t ssh_tmux -n mlm-train \
+# 3. Create tmux window (persists after Ctrl+C), then send command
+ssh $SSH_URL "tmux new-window -t ssh_tmux -n mlm-train 2>/dev/null || true"
+ssh $SSH_URL "tmux send-keys -t ssh_tmux:mlm-train \
   'export PYENV_ROOT=/root/.pyenv && \
    export PATH=\$PYENV_ROOT/bin:\$PYENV_ROOT/shims:\$PATH && \
    eval \"\$(pyenv init -)\" && \
-   bash /workspace/auto-mlm-pipes/deploy/run-all-mlm-efcamdat.sh; bash'"
+   bash /workspace/auto-mlm-pipes/deploy/run-all-mlm-efcamdat.sh --resume' Enter"
 ```
 
 With resume (skip models that already have `output_dir/final/`):
@@ -66,13 +68,33 @@ With resume (skip models that already have `output_dir/final/`):
 bash /workspace/auto-mlm-pipes/deploy/run-all-mlm-efcamdat.sh --resume
 ```
 
+## Step 3b: Run 4 multilingual MLM models only
+
+Same prep as Step 3, but uses the multilingual-only script with OOM watchdog.
+
+```bash
+# 1. Push + pull (same as above)
+
+# 2. Create tmux window (persists after Ctrl+C), then send command
+ssh $SSH_URL "tmux new-window -t ssh_tmux -n mlm-multi 2>/dev/null || true"
+ssh $SSH_URL "tmux send-keys -t ssh_tmux:mlm-multi \
+  'export PYENV_ROOT=/root/.pyenv && \
+   export PATH=\$PYENV_ROOT/bin:\$PYENV_ROOT/shims:\$PATH && \
+   eval \"\$(pyenv init -)\" && \
+   bash /workspace/auto-mlm-pipes/deploy/run-multilingual-mlm-efcamdat.sh --skip-fetch' Enter"
+```
+
+OOM watchdog: if a model OOMs, the script automatically halves batch size,
+doubles gradient accumulation, and retries (up to 3 times).
+
 ## Step 4: Start GDrive sync (separate tmux window)
 
 Syncs completed models to GDrive every 15 minutes. Runs independently from training.
 
 ```bash
-ssh $SSH_URL "tmux new-window -t ssh_tmux -n mlm-sync \
-  'bash /workspace/auto-mlm-pipes/deploy/sync-results-gdrive.sh; bash'"
+ssh $SSH_URL "tmux new-window -t ssh_tmux -n mlm-sync 2>/dev/null || true"
+ssh $SSH_URL "tmux send-keys -t ssh_tmux:mlm-sync \
+  'bash /workspace/auto-mlm-pipes/deploy/sync-results-gdrive.sh' Enter"
 ```
 
 ### How the sync works
@@ -137,16 +159,20 @@ ssh $SSH_URL "df -h /workspace"
 ssh $SSH_URL "du -sh /workspace/auto-mlm-pipes/outputs/*"
 ```
 
-## Models trained (15 MLM configs)
+## Models trained (19 MLM configs)
 
 | Family | Models |
 |--------|--------|
 | ALBERT | base-v2, large-v2, xlarge-v2, xxlarge-v2 |
 | BERT | base-uncased, large-uncased |
 | DeBERTaV3 | xsmall, small, base, large |
+| InfoXLM | large |
 | ModernBERT | base, large |
+| Multilingual E5 | large |
 | NomicBERT | nomic-embed-text-v1 |
+| RemBERT | base |
 | RoBERTa | base, large |
+| XLM-RoBERTa | large |
 
 ## Training config notes
 
@@ -160,7 +186,8 @@ ssh $SSH_URL "du -sh /workspace/auto-mlm-pipes/outputs/*"
 |------|---------|
 | `deploy/project-setup-remote.sh` | Pyenv + deps setup (run once) |
 | `deploy/run-smoke-test.sh` | Quick GPU validation |
-| `deploy/run-all-mlm-efcamdat.sh` | Full 15-model MLM training |
+| `deploy/run-all-mlm-efcamdat.sh` | Full 19-model MLM training |
+| `deploy/run-multilingual-mlm-efcamdat.sh` | 4 multilingual models with OOM watchdog |
 | `deploy/sync-results-gdrive.sh` | Periodic GDrive sync (every 15min) |
 | `configs/dummies/smoke-test.yaml` | Smoke config (1 epoch, dummy data) |
 | `scripts/train-all-mlm.sh` | Sequential training orchestrator |
